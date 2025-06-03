@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Branch Predictor Simulator</title>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;padding:20px}
+    .controls{margin-bottom:15px}
+    select,button,input[type="number"]{margin:6px 6px 6px 6px;padding:6px 10px}
+    table{border-collapse:collapse;width:100%;margin-top:10px}
+    th,td{border:1px solid #ccc;padding:4px 6px;text-align:center;font-size:14px}
+    th{background:#f0f0f0}
+    .mispredict{background:#f8d7da}
+    .correct-predict{background:#d4edda}
+    .flush-cell{background:#fff3cd}
+    .input-output{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+    #instrList{background:#fafafa;padding:10px;border:1px solid #ccc; margin: 6px 6px 6px 6px}
+    #instrList pre{white-space:pre-wrap;font-size:13px;margin:0}
+    #Stats{border:1px solid #ccc;padding:8px;font-size:14px}
+    #ghrDump,#percY,#percT,#ghrDumpTage{font-family:monospace;background:#eee;padding:2px 4px;border-radius:3px}
+    .main-content{display:flex;gap:20px;margin-top:15px}
+    .pipeline-container{flex:1}
+    .status>div{margin-bottom:15px}
+    .status table{font-size:12px}
+  </style>
+</head>
+<body>
+<h1>Branch Predictor Simulator</h1>
+<div class="controls">
+  <label title="Type of algorithm">Predictor:
+    <select id="algSelect">
+      <option value="twoBit">2‑bit</option>
+      <option value="gshare">gshare</option>
+      <option value="perc">Perceptron</option>
+      <option value="tage">TAGE</option>
+    </select>
+  </label>
+  <label title="Number of instructions">Instructions:<input type="number" id="instructionCount" value="20" min="1" style="width:60px"></label>
+  <label>Branches % <input type="range" id="branchPercent" min="0" max="50" step="10" value="20"></label>
+  <label>Loops % <input type="range" id="loopPercent" min="0" max="50" step="10" value="10"></label>
+  <button id="btnGenerate" title="Полный сброс и генерация новых инструкций">Generate</button>
+  <button id="btnNext" title="Пошаговое выполнение инструкций">Next</button>
+  <button id="btnRun" title="Выполнение всех инструкций">Run</button>
+  <button id="btnReset" title="Сброс конвейера">Reset</button>
+</div>
+
+<div class="input-output">
+  <div id="instrList"><h3>Instructions</h3><pre id="instrPre"></pre></div>
+  <div id="Stats">
+    <h3>Stats</h3>
+    <p id="mispredictCount">Mispredict: 0</p>
+    <p id="correctCount">Correct: 0</p>
+    <p id="accuracy">Accuracy: 0%</p>
+    <p>GHR: <span id="ghrDump">000000</span></p>
+  </div>
+</div>
+
+<div class="main-content">
+  <div class="pipeline-container">
+    <table>
+      <thead><tr><th>Cycle</th><th>IF</th><th>ID</th><th>EX</th><th>MEM</th><th>WB</th><th>Flush</th></tr></thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+  <div class="status">
+    <div id="status-twoBit" style="display:none">
+      <h3>BHT</h3>
+      <table id="bhtTable"><thead><tr><th>Idx</th><th>St</th></tr></thead><tbody></tbody></table>
+    </div>
+
+    <div id="status-gshare" style="display:none">
+      <h3>PHT</h3>
+      <table id="phtTable"><thead><tr><th>Idx</th><th>St</th></tr></thead><tbody></tbody></table>
+    </div>
+
+    <div id="status-perc" style="display:none">
+      <h3>Perceptron</h3>
+      <p>θ=<span id="percT">0</span> &nbsp; y=<span id="percY">0</span></p>
+      <table id="percW"><thead><tr><th>i</th><th>w</th></tr></thead><tbody></tbody></table>
+    </div>
+
+    <div id="status-tage" style="display:none">
+      <h3>TAGE (longest)</h3>
+      <p>GHR: <span id="ghrDumpTage">0</span></p>
+      <table id="tageTbl"><thead><tr><th>Idx</th><th>ctr</th><th>u</th></tr></thead><tbody></tbody></table>
+    </div>
+
+    <div>
+      <h3>BTB</h3>
+      <div id="btbDump">empty</div>
+    </div>
+  </div>
+</div>
+    <script src="BPscript.js"></script>
+</body>
+</html>
