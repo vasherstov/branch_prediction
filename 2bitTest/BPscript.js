@@ -152,7 +152,7 @@ class GHRBits {
      */
     getBit(k) {
       if (!Number.isInteger(k) || k < 0 || k >= this.length) {
-        return 0;;
+        return 0;
       }
       return Number((this.value >> BigInt(k)) & BigInt(1));
     }
